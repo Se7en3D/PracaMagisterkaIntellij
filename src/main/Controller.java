@@ -106,7 +106,7 @@ public class Controller implements Initializable {
     }
     @FXML
     public void searchDevice(){
-        drawBattery();
+        drawBattery();drawDefaultJoyStick();drawCarWithSensors();
         CBBluetoothDevices.getItems().clear();
         try{
             bluetooth.searchDevices();
