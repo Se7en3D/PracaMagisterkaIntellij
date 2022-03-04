@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Text?>
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="850.0" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="MainController">
+   <top>
+      <VBox prefHeight="49.0" prefWidth="600.0" BorderPane.alignment="CENTER">
+         <children>
+            <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0">
+               <children>
+                  <Button fx:id="BTSearchDevice" mnemonicParsing="false" text="Wyszukaj urządzenia">
+                     <HBox.margin>
+                        <Insets left="10.0" />
+                     </HBox.margin>
+                  </Button>
+                  <Label fx:id="LBConnectionStatus" alignment="CENTER" minWidth="120.0" prefWidth="120.0" style="-fx-min-width: 73;" text="Niepołączony">
+                     <HBox.margin>
+                        <Insets left="10.0" />
+                     </HBox.margin>
+                  </Label>
+                  <ComboBox fx:id="CBBluetoothDevices" prefWidth="200.0">
+                     <HBox.margin>
+                        <Insets left="10.0" />
+                     </HBox.margin>
+                  </ComboBox>
+                  <Button fx:id="BTConnectToDevice" alignment="CENTER" mnemonicParsing="false" text="Połącz">
+                     <HBox.margin>
+                        <Insets left="10.0" />
+                     </HBox.margin>
+                  </Button>
+                  <Canvas fx:id="CVBattery" height="36.0" width="227.0">
+                     <HBox.margin>
+                        <Insets left="25.0" />
+                     </HBox.margin>
+                  </Canvas>
+               </children>
+            </HBox>
+         </children>
+      </VBox>
+   </top>
+   <center>
+      <VBox fx:id="VBControlCar" disable="true" prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
+         <children>
+            <HBox alignment="CENTER" prefHeight="38.0" prefWidth="700.0">
+               <children>
+                  <Button fx:id="BTMeasurment" mnemonicParsing="false" prefWidth="180.0" text="Pomiary odległości">
+                     <HBox.margin>
+                        <Insets right="10.0" />
+                     </HBox.margin>
+                  </Button>
+                  <Button mnemonicParsing="false" text="Kalibracja">
+                     <HBox.margin>
+                        <Insets right="10.0" />
+                     </HBox.margin>
+                  </Button>
+                  <Button mnemonicParsing="false" text="Status uC">
+                     <HBox.margin>
+                        <Insets right="10.0" />
+                     </HBox.margin>
+                  </Button>
+                  <Button fx:id="BTShowError" mnemonicParsing="false" prefWidth="120.0" text="Informacje" />
+                  <ImageView fx:id="IVbellImage" fitHeight="39.0" fitWidth="39.0" pickOnBounds="true" preserveRatio="true" />
+               </children>
+            </HBox>
+            <HBox alignment="CENTER_RIGHT" prefHeight="709.0" prefWidth="800.0">
+               <children>
+                  <Canvas fx:id="CVcarWithSensors" height="701.0" width="601.0" />
+                  <VBox alignment="CENTER" prefHeight="200.0" prefWidth="200.0">
+                     <children>
+                        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Kontroler kierunku jazdy">
+                           <VBox.margin>
+                              <Insets bottom="10.0" />
+                           </VBox.margin>
+                        </Text>
+                        <Canvas fx:id="CVController" height="160.0" width="160.0" />
+                     </children>
+                  </VBox>
+               </children>
+            </HBox>
+         </children></VBox>
+   </center>
+</BorderPane>
