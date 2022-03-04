@@ -6,8 +6,10 @@ import javax.bluetooth.LocalDevice;
 import javax.bluetooth.RemoteDevice;
 import javax.microedition.io.Connector;
 import javax.microedition.io.StreamConnection;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 
 public class Bluetooth {
     private static RemoteDevice[] remoteDevice;
@@ -17,7 +19,6 @@ public class Bluetooth {
     private static String NamePort="";
     public void searchDevices() throws BluetoothStateException {
         LocalDevice localDevice=LocalDevice.getLocalDevice();
-
         this.remoteDevice=localDevice.getDiscoveryAgent().retrieveDevices(DiscoveryAgent.PREKNOWN);
     }
 
@@ -34,6 +35,22 @@ public class Bluetooth {
     }
     public RemoteDevice[] getRemoteDevice() {
         return remoteDevice;
+    }
+    public ArrayList<String> getFrendlyName() throws IOException {
+        ArrayList<String> frendlyName=new ArrayList<>();
+        int sizeRemoteDevice=0;
+        if(remoteDevice==null){
+            searchDevices();
+        }
+        sizeRemoteDevice=this.remoteDevice.length;
+        for(int i=0;i<sizeRemoteDevice;i++){
+            String tempString=this.remoteDevice[i].getFriendlyName(false);
+            if(tempString!=null) {
+                frendlyName.add(tempString);
+            }
+        }
+
+        return frendlyName;
     }
 
 

@@ -6,13 +6,13 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Text?>
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="850.0" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="old.main.Controller">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="850.0" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="MainController">
    <top>
       <VBox prefHeight="49.0" prefWidth="600.0" BorderPane.alignment="CENTER">
          <children>
             <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0">
                <children>
-                  <Button fx:id="BTSearchDevice" mnemonicParsing="false" onAction="#searchDevice" text="Wyszukaj urządzenia">
+                  <Button fx:id="BTSearchDevice" mnemonicParsing="false" text="Wyszukaj urządzenia">
                      <HBox.margin>
                         <Insets left="10.0" />
                      </HBox.margin>
@@ -27,7 +27,7 @@
                         <Insets left="10.0" />
                      </HBox.margin>
                   </ComboBox>
-                  <Button fx:id="BTConnectToDevice" alignment="CENTER" mnemonicParsing="false" onAction="#connectToDevice" text="Połącz">
+                  <Button fx:id="BTConnectToDevice" alignment="CENTER" mnemonicParsing="false" text="Połącz">
                      <HBox.margin>
                         <Insets left="10.0" />
                      </HBox.margin>
@@ -47,22 +47,22 @@
          <children>
             <HBox alignment="CENTER" prefHeight="38.0" prefWidth="700.0">
                <children>
-                  <Button fx:id="BTMeasurment" mnemonicParsing="false" onAction="#showSceneMeasurment" prefWidth="180.0" text="Pomiary odległości">
+                  <Button fx:id="BTMeasurment" mnemonicParsing="false" prefWidth="180.0" text="Pomiary odległości">
                      <HBox.margin>
                         <Insets right="10.0" />
                      </HBox.margin>
                   </Button>
-                  <Button mnemonicParsing="false" onAction="#showColibration" text="Kalibracja">
+                  <Button mnemonicParsing="false" text="Kalibracja">
                      <HBox.margin>
                         <Insets right="10.0" />
                      </HBox.margin>
                   </Button>
-                  <Button mnemonicParsing="false" onAction="#sendCommandGetStatusAllStructure" text="Status uC">
+                  <Button mnemonicParsing="false" text="Status uC">
                      <HBox.margin>
                         <Insets right="10.0" />
                      </HBox.margin>
                   </Button>
-                  <Button fx:id="BTShowError" mnemonicParsing="false" onAction="#showError" prefWidth="120.0" text="Informacje" />
+                  <Button fx:id="BTShowError" mnemonicParsing="false" prefWidth="120.0" text="Informacje" />
                   <ImageView fx:id="IVbellImage" fitHeight="39.0" fitWidth="39.0" pickOnBounds="true" preserveRatio="true" />
                </children>
             </HBox>
@@ -76,7 +76,7 @@
                               <Insets bottom="10.0" />
                            </VBox.margin>
                         </Text>
-                        <Canvas fx:id="CVController" height="160.0" onDragExited="#stopDrawing" onMouseDragged="#startDrawing" onMouseExited="#stopDrawing" onMouseReleased="#stopDrawing" width="160.0" />
+                        <Canvas fx:id="CVController" height="160.0" width="160.0" />
                      </children>
                   </VBox>
                </children>

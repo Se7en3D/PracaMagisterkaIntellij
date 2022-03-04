@@ -10,7 +10,7 @@ public class Main extends Application {
     public void start(Stage primaryStage) throws Exception{
         FXMLLoader loader = new FXMLLoader(getClass().getResource("MainScene.fxml"));
         Parent root = loader.load();
-        root.getStylesheets().add("style.css");
+        root.getStylesheets().add("style/style.css");
         primaryStage.setTitle("Praca magisterska");
         primaryStage.setScene(new Scene(root));
         /*Controller controller = loader.getController();
