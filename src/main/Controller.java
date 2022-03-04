@@ -41,8 +41,6 @@ public class Controller implements Initializable {
     private typicalFunction typicalFunction=new typicalFunction();
     private DrivingMeasurmentSamples drivingMeasurmentSample= new DrivingMeasurmentSamples();
     private Thread trReadFromBluetooth; //Watek odpowiedzialny za odczytywanie informacji
-    private Thread trGetSensorInfo; //Wątek odpowiedzialny za cykliczne wysyłanie zapytań o sensory
-    private Thread trSendControlData; //Wątek odpowiedzialny za cykliczne wysyłanie kierunku jazdy
     private Thread trControlMainScene=new Thread();
     private Boolean varBTToFront=false;
     private Boolean varBTToBack=false;
@@ -61,6 +59,7 @@ public class Controller implements Initializable {
     private float fun1b=0;
     private float fun2a=0;
     private float fun2b=0;
+    private int carMoveVector=0;
     private boolean sendData=false;
     private int time500ms=0;
 
@@ -184,10 +183,11 @@ public class Controller implements Initializable {
                                             setInfoAlert();
                                                 break;
                                         case FrameInput.SEND_MEASUREMENT_FUN:
+                                            //frameInput.getFrameInput();
                                             drivingMeasurmentSample.addMeasurment(frameInput.getFrameInput());
                                             Platform.runLater(new Runnable() {
                                                 @Override
-                                                public void run() {
+                                               public void run() {
                                                     drawCarWithSensors();
                                                 }
                                             });
@@ -316,6 +316,14 @@ public class Controller implements Initializable {
             }
         }
     }
+    public void sendCommandGetStatusAllStructure(){
+        try {
+            bluetooth.sendData((byte) FrameInput.GET_STATUS_ALL_STRUCTURE);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
 
     private void funRTControlSystem(){
             int send=calcfunction();
@@ -404,15 +412,16 @@ public class Controller implements Initializable {
 
             //System.out.println("kąt="+tangensAlfa+" x="+newX+"  y="+newY );
 
-
-
             if(tangensAlfa<=25){
                 //System.out.println("ROTATE_RIGHT");
                 return FrameInput.ROTATE_RIGHT;
             }
             if(tangensAlfa<=70){
                 //System.out.println("RIDE_RIGHT_FUN");
-                return FrameInput.RIDE_RIGHT_FUN;
+                if(newY>0)
+                    return FrameInput.RIDE_RIGHT_FUN;
+                else
+                    return FrameInput.RIDE_BACKWARD_RIGHT;
             }
             if (tangensAlfa>155){
                 //System.out.println("ROTATE_LEFT");
@@ -420,7 +429,11 @@ public class Controller implements Initializable {
             }
             if(tangensAlfa>110){
                 //System.out.println("RIDE_LEFT_FUN");
-                return  FrameInput.RIDE_LEFT_FUN;
+                if(newY>0)
+                    return  FrameInput.RIDE_LEFT_FUN;
+                else
+                    //System.out.println("RIDE_BACKWARD_LEFT");
+                    return FrameInput.RIDE_BACKWARD_LEFT;
             }
             if(newY>0){
                 //System.out.println("RIDE_FORWARD_FUN");
@@ -512,7 +525,19 @@ public class Controller implements Initializable {
         double centery=height/2;
         GraphicsContext context = CVcarWithSensors.getGraphicsContext2D();
         context.clearRect(0, 0, CVcarWithSensors.getWidth(), CVcarWithSensors.getHeight());
-        drawCar(centerx,centery,100,150);
+       double defaultWidth=100;
+        double defaultHeight=150;
+        if(sendData==false){
+            drawCar(centerx,centery,defaultWidth,defaultHeight);
+            carMoveVector=0;
+        }else{
+            carMoveVector+=10;
+            drawCar(centerx,centery-carMoveVector,defaultWidth,defaultHeight);
+            if(carMoveVector>40){
+                carMoveVector=0;
+            }
+        }
+
         drawSensor(centerx,centery,width-20,height-20);
     }
     private void drawCar(double x, double y, double w,double h){
@@ -531,72 +556,72 @@ public class Controller implements Initializable {
         Paint strokePreview=context.getStroke();
         double lineWidthPreview=context.getLineWidth();
         context.setLineWidth(4.0);
-        if(drivingMeasurmentSample.getIrSensor(DrivingMeasurmentSamples.IR_NR1_NUMBER)){
-            context.setStroke(Color.RED);
-        }
-        context.strokeArc(topArcx, topArcy, w, h/2, 0, 60, ArcType.OPEN);
-        context.setStroke(strokePreview);
-
         if(drivingMeasurmentSample.getIrSensor(DrivingMeasurmentSamples.IR_NR2_NUMBER)){
             context.setStroke(Color.RED);
         }
-        context.strokeArc(topArcx, topArcy, w, h/2, 60, 60, ArcType.OPEN);
+        context.strokeArc(topArcx, topArcy, w, h/2, 0, 90, ArcType.OPEN);
         context.setStroke(strokePreview);
 
 
         if(drivingMeasurmentSample.getIrSensor(DrivingMeasurmentSamples.IR_NR3_NUMBER)){
             context.setStroke(Color.RED);
         }
-        context.strokeArc(topArcx, topArcy, w, h/2, 120, 60, ArcType.OPEN);
+        context.strokeArc(topArcx, topArcy, w, h/2, 90, 90, ArcType.OPEN);
         context.setStroke(strokePreview);
-
-
-        context.strokeLine(firstLinex,firstLiney,topArcx,firstLiney+heightElement-addWidthOval/2);
-        for(int i=0;i<10;i++) { //rysowanie koła lewego górnego
-            context.strokeOval(firstLinex - widthOval / 2+i, firstLiney + heightElement - addWidthOval / 2, widthOval, heightElement + addWidthOval);
-        }
-        context.strokeLine(firstLinex,firstLiney+heightElement*2+addWidthOval/2,firstLinex,firstLiney+heightElement*3-addWidthOval/2);
-        for(int i=0;i<10;i++) { //rysowanie koła lewego dolnego
-            context.strokeOval(firstLinex-widthOval/2+i,firstLiney+heightElement*3-addWidthOval/2,widthOval,heightElement+addWidthOval);
-        }
 
         if(drivingMeasurmentSample.getIrSensor(DrivingMeasurmentSamples.IR_NR4_NUMBER)){
             context.setStroke(Color.RED);
         }
-        context.strokeLine(firstLinex,firstLiney+heightElement*4+addWidthOval/2,firstLinex,firstLiney+heightElement*5);
+        context.strokeLine(firstLinex,firstLiney,topArcx,firstLiney+heightElement-addWidthOval/2);
         context.setStroke(strokePreview);
+        //rysowanie koła lewego górnego
+        context.fillRoundRect(firstLinex-w/4/2, (firstLiney+heightElement-addWidthOval/2)+5, w/4, h/5, w/10, h/10);
 
+        context.strokeLine(firstLinex,firstLiney+heightElement*2+addWidthOval/2,firstLinex,firstLiney+heightElement*3-addWidthOval/2);
+        //rysowanie koła lewego dolnego
+        context.fillRoundRect(firstLinex-w/4/2, (firstLiney+heightElement*3-addWidthOval/2)+5, w/4, h/5, w/10, h/10);
 
-        //context.strokeArc(firstLinex, firstLiney+heightElement*5-h/4, w, h/2, 0, -180, ArcType.OPEN);
         if(drivingMeasurmentSample.getIrSensor(DrivingMeasurmentSamples.IR_NR5_NUMBER)){
             context.setStroke(Color.RED);
         }
-        context.strokeArc(firstLinex, firstLiney+heightElement*5-h/4, w, h/2, 0, -60, ArcType.OPEN);
         context.setStroke(strokePreview);
+
+        context.strokeLine(firstLinex,firstLiney+heightElement*4+addWidthOval/2,firstLinex,firstLiney+heightElement*5);
 
         if(drivingMeasurmentSample.getIrSensor(DrivingMeasurmentSamples.IR_NR6_NUMBER)){
             context.setStroke(Color.RED);
         }
-        context.strokeArc(firstLinex, firstLiney+heightElement*5-h/4, w, h/2, -60, -60, ArcType.OPEN);
+        context.strokeArc(firstLinex, firstLiney+heightElement*5-h/4, w, h/2, 0, -90, ArcType.OPEN);
         context.setStroke(strokePreview);
+
         if(drivingMeasurmentSample.getIrSensor(DrivingMeasurmentSamples.IR_NR7_NUMBER)){
             context.setStroke(Color.RED);
         }
-        context.strokeArc(firstLinex, firstLiney+heightElement*5-h/4, w, h/2, -120, -60, ArcType.OPEN);
+        context.strokeArc(firstLinex, firstLiney+heightElement*5-h/4, w, h/2, -90, -90, ArcType.OPEN);
         context.setStroke(strokePreview);
-        context.strokeLine(seconfLinex,firstLiney,seconfLinex,firstLiney+heightElement-addWidthOval/2);
-        for(int i=0;i<10;i++) { //rysowanie koła prawego dolnego
-            context.strokeOval(seconfLinex-widthOval/2-i,firstLiney+heightElement-addWidthOval/2,widthOval,heightElement+addWidthOval);
-        }
+
         if(drivingMeasurmentSample.getIrSensor(DrivingMeasurmentSamples.IR_NR8_NUMBER)){
             context.setStroke(Color.RED);
         }
-        context.strokeLine(seconfLinex,firstLiney+heightElement*2+addWidthOval/2,seconfLinex,firstLiney+heightElement*3-addWidthOval/2);
+            context.strokeLine(seconfLinex,firstLiney+heightElement*4+addWidthOval/2,seconfLinex,firstLiney+heightElement*5);
         context.setStroke(strokePreview);
-        for(int i=0;i<10;i++) { //rysowanie koła prawego górnego
-            context.strokeOval(seconfLinex-widthOval/2-i,firstLiney+heightElement*3-addWidthOval/2,widthOval,heightElement+addWidthOval);
+
+
+        //rysowanie koła prawego dolnego
+        context.fillRoundRect(seconfLinex-w/4/2, (firstLiney+heightElement-addWidthOval/2)+5, w/4, h/5, w/10, h/10);
+
+        context.strokeLine(seconfLinex,firstLiney+heightElement*2+addWidthOval/2,seconfLinex,firstLiney+heightElement*3-addWidthOval/2);
+
+        //rysowanie koła prawego górnego
+        context.fillRoundRect(seconfLinex-w/4/2, firstLiney+heightElement*3-addWidthOval/2+5, w/4, h/5, w/10, h/10);
+
+
+        if(drivingMeasurmentSample.getIrSensor(DrivingMeasurmentSamples.IR_NR1_NUMBER)){
+            context.setStroke(Color.RED);
         }
-        context.strokeLine(seconfLinex,firstLiney+heightElement*4+addWidthOval/2,seconfLinex,firstLiney+heightElement*5);
+        context.strokeLine(seconfLinex,firstLiney,seconfLinex,firstLiney+heightElement-addWidthOval/2);
+        context.setStroke(strokePreview);
+
         context.setLineWidth(lineWidthPreview);
     }
 
@@ -705,14 +730,8 @@ public class Controller implements Initializable {
             if(trControlMainScene!=null){
                 trControlMainScene.stop();
             }
-            if(trReadFromBluetooth!=null){
+            if(trReadFromBluetooth!=null) {
                 trReadFromBluetooth.stop();
-            }
-            if(trSendControlData!=null){
-                trSendControlData.stop();
-            }
-            if(trGetSensorInfo!=null){
-                trGetSensorInfo.stop();
             }
             bluetooth.closeConnection();
         }catch (Exception ex){
