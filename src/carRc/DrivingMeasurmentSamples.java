@@ -91,7 +91,7 @@ public class DrivingMeasurmentSamples {
         int tempInt=(frame.get(6)<<24) | (frame.get(5)<<16)|(frame.get(4)<<8)|(frame.get(3));
         this.ultrasonicSensor[ordinalNumber]=(float)tempInt*0.034/2;
         this.laserSensor[ordinalNumber]=(frame.get(8)<<8)|(frame.get(7));
-        System.out.println("Zmierzone wartości to ultrasonicSensor="+this.ultrasonicSensor[ordinalNumber]+" laserSensor="+laserSensor[ordinalNumber]);
+        //System.out.println("Zmierzone wartości to ultrasonicSensor="+this.ultrasonicSensor[ordinalNumber]+" laserSensor="+laserSensor[ordinalNumber]);
 
         if(this.laserSensor[ordinalNumber]>8180){
             this.laserSensor[ordinalNumber]=0;
@@ -130,8 +130,10 @@ public class DrivingMeasurmentSamples {
         value|=frame.get(5);
         //System.out.println(value);
         float measurmentVoltege= (float) (value*3.3/maxValueADCMeasurment);
-        float batteryVoltage=(float)(measurmentVoltege*measurmentVoltege*measurmentVoltege*(-0.1155)+measurmentVoltege*measurmentVoltege*(0.4562)+measurmentVoltege*(-1.0853)+8.6136); //(float) (-1.75*measurmentVoltege+11.28);
-        //System.out.println("measurmentVoltege="+measurmentVoltege+" batteryVoltage="+batteryVoltage);
+        float batteryVoltage=(float)(measurmentVoltege*measurmentVoltege*measurmentVoltege*(-0.1858)+measurmentVoltege*measurmentVoltege*(0.6476)+measurmentVoltege*(-1.2192)+8.6897); //(float) (-1.75*measurmentVoltege+11.28);
+        String valueMeasurmentVoltage= String.valueOf(measurmentVoltege);
+        valueMeasurmentVoltage.replaceAll(String.valueOf('.'),",");
+        System.out.println(valueMeasurmentVoltage+" ; "+batteryVoltage);
         if(batteryVoltage<minVoltageBattery || batteryVoltage>maxVoltageBattery){ //zmierzone napięcie musi sie mieścić w zakresie pomiarowym
             return;
         }
