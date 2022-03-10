@@ -245,7 +245,7 @@ public class Controller implements Initializable {
         clearInfoAlert();
         try{
             if(!stageError.isShowing()) {
-                URL fxmlURL = this.getClass().getClassLoader().getResource("\\errorDevice\\scene.fxml");
+                URL fxmlURL = this.getClass().getClassLoader().getResource("\\errorDevice\\ErrorStageScene.fxml");
                 Parent root = FXMLLoader.load(fxmlURL);
                 Scene scene = new Scene(root);
                 root.getStylesheets().add("style.css");
@@ -255,7 +255,7 @@ public class Controller implements Initializable {
             }
         }catch(Exception ex){
             ex.printStackTrace();
-            typicalFunction.showError("Nie udało się znaleśc pliku errorDevice\\scene.fxml. \r\n Bład: "+ex.getMessage());
+            typicalFunction.showError("Nie udało się znaleśc pliku errorDevice\\ErrorStageScene.fxml. \r\n Bład: "+ex.getMessage());
         }
     }
 
@@ -264,7 +264,7 @@ public class Controller implements Initializable {
         clearInfoAlert();
         try{
             if(!stageCalib.isShowing()) {
-                URL fxmlURL = this.getClass().getClassLoader().getResource("\\Calibration\\scene.fxml");
+                URL fxmlURL = this.getClass().getClassLoader().getResource("\\Calibration\\ErrorStageScene.fxml");
                 Parent root = FXMLLoader.load(fxmlURL);
                 Scene scene = new Scene(root);
                 root.getStylesheets().add("style.css");
@@ -274,7 +274,7 @@ public class Controller implements Initializable {
             }
         }catch(Exception ex){
             ex.printStackTrace();
-            typicalFunction.showError("Nie udało się znaleśc pliku \\Calibration\\scene.fxml. \r\n Bład: "+ex.getMessage());
+            typicalFunction.showError("Nie udało się znaleśc pliku \\Calibration\\ErrorStageScene.fxml. \r\n Bład: "+ex.getMessage());
         }
     }
     public boolean disconnectDevice(){

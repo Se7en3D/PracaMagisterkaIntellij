@@ -23,13 +23,14 @@ public class Bluetooth {
     }
 
     public void connectToDevice(String friendlyName) throws Exception{
-        closeConnection();
         for(RemoteDevice i:remoteDevice){
+
             if(i.getFriendlyName(false).equals(friendlyName)){
                 this.streamConnection=(StreamConnection) Connector.open("btspp://"+i.getBluetoothAddress()+":1;authenticate=true;encrypt=true;master=false;");
                 this.inputStream=streamConnection.openInputStream();
                 this.outputStream=streamConnection.openOutputStream();
                 this.NamePort=friendlyName;
+                System.out.println("Połączony z bluetooth "+friendlyName);
             }
         }
     }
@@ -55,18 +56,30 @@ public class Bluetooth {
 
 
     public void closeConnection() throws Exception{
-        if(inputStream!=null){
+       if(inputStream!=null){
             inputStream.close();
+            inputStream=null;
         }
         if(outputStream!=null){
             outputStream.close();
+            outputStream=null;
         }
         if(streamConnection!=null){
             streamConnection.close();
+            streamConnection=null;
         }
     }
+
     public void setRemoteDevice(RemoteDevice[] remoteDevice) {
         this.remoteDevice = remoteDevice;
     }
 
+    public byte[] getInputData() throws IOException {
+        if(inputStream!=null && inputStream.available()>0){
+            byte[] bytes=new byte[inputStream.available()];
+            inputStream.read(bytes);
+            return bytes;
+        }
+        return null;
+    }
 }
