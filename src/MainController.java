@@ -1,5 +1,6 @@
 import CommunicationPackage.Communication;
 import ErrorStage.ErrorStageController;
+import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -198,17 +199,6 @@ public class MainController implements Initializable {
                 communication.refreshBatteryCanvas(CVBattery);
                 communication.canvasCarWithSensor(CVcarWithSensors);
                 communication.addErrorTestValue();
-                if(errorStage.isShowing()){
-                    try {
-                        Window x=errorStage.get();
-                        x.getC
-                    }catch (Exception ex){
-                        ex.printStackTrace();
-                    }
-                    System.out.println("ClassInfoArrayList="+communication.getClassInfoArrayList().size());
-                }else{
-                    System.out.println("No showing");
-                }
             }catch (Exception ex){
 
             }
@@ -270,9 +260,12 @@ public class MainController implements Initializable {
                 if(root!=null) {
                     Scene scene = new Scene(root);
                     ErrorStageController controller = loader.<ErrorStageController>getController();
-                    controller.showTableView(communication.getClassInfoArrayList());
+                    controller.showTableView(communication);
                     //root.getStylesheets().add("../style.css");
                     errorStage.setScene(scene);
+                    errorStage.setOnHidden(e -> {
+                        controller.close();
+                    });
                     errorStage.setTitle("Praca magisterska panel informacyjny");
                     errorStage.show();
                 }else{

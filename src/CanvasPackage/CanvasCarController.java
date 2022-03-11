@@ -68,6 +68,8 @@ public class CanvasCarController {
 
     private void canvasClear(Canvas canvas){
         GraphicsContext gc = canvas.getGraphicsContext2D();
-        gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+        if(gc!=null) {
+            gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+        }
     }
 }

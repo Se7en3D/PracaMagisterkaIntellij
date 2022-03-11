@@ -1,6 +1,8 @@
 package ErrorStage;
 
 import CommunicationPackage.ClassInfo;
+import CommunicationPackage.Communication;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
@@ -21,6 +23,8 @@ import java.util.ResourceBundle;
 
 
 public class ErrorStageController implements Initializable {
+    Communication communication=null;
+    Thread refreshTable;
     @FXML
     TableView tableView;
     @FXML
@@ -31,10 +35,6 @@ public class ErrorStageController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-
-
-        /*tableViewError=new TableViewError(tableView);
-        tableViewError.showTable();*/
     }
 
     @FXML
@@ -59,7 +59,27 @@ public class ErrorStageController implements Initializable {
     public void clearFrame(){
         //tableViewError.clearData();
     }
-    public void showTableView(ArrayList<ClassInfo> classInfoArrayList){
+    public void showTableView(Communication communication){
+        this.communication=communication;
+
+        if(refreshTable==null){
+            refreshTable=new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    while(true) {
+                        try {
+                            refreshTableView();
+                            Thread.sleep(2000);
+                        }catch (Exception ex){
+                            ex.printStackTrace();
+                        }
+                    }
+                }
+            });
+            refreshTable.start();
+        }
+
+        ArrayList<ClassInfo> classInfoArrayList= communication.getClassInfoArrayList();
         TableColumn<ClassInfo, Integer> tcCodeNumber =new TableColumn<>("Numer kodu");
         tcCodeNumber.setCellValueFactory(new PropertyValueFactory<>("codeNumber"));
 
@@ -78,10 +98,30 @@ public class ErrorStageController implements Initializable {
         tableView.getColumns().addAll(tcCodeNumber,tcVariableInProgram,tcSource,tcComment);
         tableView.getItems().addAll(classInfoArrayList);
     }
-    public void refreshTableView(ArrayList<ClassInfo> classInfoArrayList){
-        System.out.println("asd");
-        tableView.getItems().clear();
-        tableView.getItems().addAll(classInfoArrayList);
+    public synchronized void refreshTableView() throws  Exception{
+        if(communication!=null) {
+            try {
+            ArrayList<ClassInfo> classInfoArrayList = communication.getClassInfoArrayList();
+            Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        tableView.getItems().clear();
+                        tableView.getItems().addAll(classInfoArrayList);
+                    }catch (Exception ex){
+                        ex.printStackTrace();
+                    }
+                }
+            });
+            }catch(Exception ex){
+                ex.printStackTrace();
+            }
+            }
+        }
 
+    public void close(){
+        if(refreshTable.isAlive()){
+            refreshTable.stop();
+        }
     }
 }
