@@ -70,7 +70,7 @@ public class DrivingMeasurmentSamples {
     }
     public void addMeasurment(ArrayList<Integer> frame){
         int ordinalNumber=frame.get(2);
-        System.out.print("Funkcja addMeasurment ordinalNumber="+ordinalNumber+"   ");
+        //System.out.print("Funkcja addMeasurment ordinalNumber="+ordinalNumber+"   ");
         if(ordinalNumber>=SERVO_MAX_POSITION){
             try {
                 throw new Exception("ordinalNumber powyżej zmiennej SERVO_MAX_POSITION");
@@ -133,7 +133,7 @@ public class DrivingMeasurmentSamples {
         float batteryVoltage=(float)(measurmentVoltege*measurmentVoltege*measurmentVoltege*(-0.1858)+measurmentVoltege*measurmentVoltege*(0.6476)+measurmentVoltege*(-1.2192)+8.6897); //(float) (-1.75*measurmentVoltege+11.28);
         String valueMeasurmentVoltage= String.valueOf(measurmentVoltege);
         valueMeasurmentVoltage.replaceAll(String.valueOf('.'),",");
-        System.out.println(valueMeasurmentVoltage+" ; "+batteryVoltage);
+        //System.out.println(valueMeasurmentVoltage+" ; "+batteryVoltage);
         if(batteryVoltage<minVoltageBattery || batteryVoltage>maxVoltageBattery){ //zmierzone napięcie musi sie mieścić w zakresie pomiarowym
             return;
         }
