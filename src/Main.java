@@ -1,4 +1,5 @@
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -13,12 +14,11 @@ public class Main extends Application {
         root.getStylesheets().add("style/style.css");
         primaryStage.setTitle("Praca magisterska");
         primaryStage.setScene(new Scene(root));
-        /*Controller controller = loader.getController();
-        primaryStage.setScene(new Scene(root));
+        MainController controller = loader.getController();
         primaryStage.setOnHidden(e -> {
             controller.close();
             Platform.exit();
-        });*/
+        });
         primaryStage.show();
     }
 

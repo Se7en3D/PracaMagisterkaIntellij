@@ -5,13 +5,14 @@ import CanvasPackage.CanvasCar;
 import CanvasPackage.CanvasCarController;
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.Canvas;
+import old.carRc.FrameInput;
 
 import java.awt.*;
 import java.util.ArrayList;
 
 public class Communication {
     private Battery battery=new Battery();
-    private DistanceMeasuringSamples distanceMeasuringSamples=new DistanceMeasuringSamples();
+    private DistanceMeasuring distanceMeasuring =new DistanceMeasuring();
     private IrSensor irSensor=new IrSensor();
     private ClassInfoDecoder classInfoDecoder=new ClassInfoDecoder();
     private CanvasBattery canvasBattery=new CanvasBattery();
@@ -19,7 +20,12 @@ public class Communication {
     private CanvasCar canvasCar=new CanvasCar();
     private ArrayList<Integer> arrayByteInput=new ArrayList<>();
     private ArrayList<ClassInfo> classInfoArrayList=new ArrayList<>();
+    private int timeToSendControlCommand;
     private static final int communiactionFirstByte=0xFF;
+
+    public Communication(){
+        timeToSendControlCommand=0;
+    }
     public void addFrameInput(int data){
         int bufferSize=arrayByteInput.size();
         if(bufferSize>0){
@@ -57,7 +63,7 @@ public class Communication {
         int funId=arrayByteInput.get(1);
         switch(funId){
             case FunctionID.MEASURE_DISTANCE_FOR_PC:
-                distanceMeasuringSamples.addMeasure(arrayByteInput);
+                distanceMeasuring.addMeasure(arrayByteInput);
                 //System.out.println("Rozpoznano funkcje MEASURE_DISTANCE_FOR_PC");
                 break;
             case FunctionID.ERROR_CODE_FUN:
@@ -88,23 +94,74 @@ public class Communication {
         double percentBattery=battery.getPercentVoltage();
         canvasBattery.drawBattery(canvas,percentBattery);
     }
-    public int calcSendFunctionFromCanvasController(Canvas canvas){
+    public int calcSendFunctionFromCanvasController(Canvas canvas) throws Exception{
         Point pointMouse = MouseInfo.getPointerInfo().getLocation();
         Point2D pointNote = canvas.localToScreen(0, 0);
-        int positionXMouseTowardNote = pointMouse.x - (int) pointNote.getX();
-        int positionYMouseTowardNote = pointMouse.y - (int) pointNote.getY();
+        double positionXMouseTowardNote = pointMouse.x - pointNote.getX();
+        double positionYMouseTowardNote = pointMouse.y - pointNote.getY();
         int widthNode=(int)canvas.getWidth();
         int heightNode=(int)canvas.getHeight();
         if(((positionXMouseTowardNote>=0)&& (positionXMouseTowardNote<=widthNode))&&
                 ((positionYMouseTowardNote>=0)&&(positionYMouseTowardNote<=heightNode))){
-            System.out.println("Pozycja myszy względem Canvasa x="+positionXMouseTowardNote+ " y="+positionYMouseTowardNote);
+            //System.out.println("Pozycja myszy względem Canvasa x="+positionXMouseTowardNote+ " y="+positionYMouseTowardNote);
             canvasCarController.drawControllerWithPosition(canvas,positionXMouseTowardNote-10,positionYMouseTowardNote-10);
         }else{
-            canvasCarController.drawController(canvas);
+            //canvasCarController.drawController(canvas);
         }
-        return 0x00;
+        positionXMouseTowardNote=(positionXMouseTowardNote-canvas.getWidth()/2);
+        positionYMouseTowardNote=(positionYMouseTowardNote-canvas.getHeight()/2)*-1;
+        double tangensAlfa=Math.toDegrees(Math.atan(positionYMouseTowardNote/positionXMouseTowardNote));
+        if(positionXMouseTowardNote<0 && positionYMouseTowardNote>0 ){
+            tangensAlfa+=180;
+            if(tangensAlfa<90)
+                tangensAlfa=180;
+        }
+        if(positionYMouseTowardNote<0){
+            tangensAlfa=tangensAlfa*-1;
+            if(tangensAlfa==-0.0){
+                tangensAlfa=0.0;
+            }
+            if(positionXMouseTowardNote<0) {
+                tangensAlfa += 180;
+                if(tangensAlfa<90)
+                    tangensAlfa=180;
+            }
+        }
+
+        //System.out.println("kąt="+tangensAlfa+" x="+positionXMouseTowardNote+"  y="+positionYMouseTowardNote );
+
+        if(tangensAlfa<=25){
+            //System.out.println("ROTATE_RIGHT");
+            return FrameInput.ROTATE_RIGHT;
+        }
+        if(tangensAlfa<=70){
+            //System.out.println("RIDE_RIGHT_FUN");
+            if(positionYMouseTowardNote>0)
+                return FrameInput.RIDE_RIGHT_FUN;
+            else
+                return FrameInput.RIDE_BACKWARD_RIGHT;
+        }
+        if (tangensAlfa>155){
+            //System.out.println("ROTATE_LEFT");
+            return  FrameInput.ROTATE_LEFT;
+        }
+        if(tangensAlfa>110){
+            //System.out.println("RIDE_LEFT_FUN");
+            if(positionYMouseTowardNote>0)
+                return  FrameInput.RIDE_LEFT_FUN;
+            else
+                //System.out.println("RIDE_BACKWARD_LEFT");
+                return FrameInput.RIDE_BACKWARD_LEFT;
+        }
+        if(positionYMouseTowardNote>0){
+            //System.out.println("RIDE_FORWARD_FUN");
+            return  FrameInput.RIDE_FORWARD_FUN;
+        }else{
+            //System.out.println("RIDE_BACKWARD_FUN");
+            return FrameInput.RIDE_BACKWARD_FUN;
+        }
     }
-    public void resetCanvasController(Canvas canvas){
+    public void resetCanvasController(Canvas canvas) throws Exception{
         canvasCarController.drawController(canvas);
     }
     public void canvasCarWithSensor(Canvas canvas){
@@ -112,7 +169,8 @@ public class Communication {
         double width=canvas.getWidth();
         double centerx=width/2;
         double centery=height/2;
-        canvasCar.drawCar(canvas,centerx,centery,100,150,irSensor.getSensorStatus());
+        MeasuringSample[] samples=distanceMeasuring.getMeasure();
+        canvasCar.drawCar(canvas,centerx,centery,100,150,irSensor.getSensorStatus(), samples);
     }
     public ArrayList<ClassInfo> getClassInfoArrayList(){
         return this.classInfoArrayList;
@@ -123,4 +181,21 @@ public class Communication {
             classInfoArrayList.add(tempClassInfo);
         }
     }
+    public void timeRefresh(){
+        this.timeToSendControlCommand++;
+        distanceMeasuring.time();
+    }
+    public Boolean isReadyToSendControlCommand(){
+        if(this.timeToSendControlCommand>0){
+            canvasCar.nextOffset();
+            this.timeToSendControlCommand=0;
+            return true;
+        }
+        return false;
+    };
+    public void clearClassInfoDecoder(){
+        classInfoArrayList.clear();
+    }
+
+
 }

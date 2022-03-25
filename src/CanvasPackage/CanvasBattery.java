@@ -44,10 +44,9 @@ public class CanvasBattery {
         context.setLineWidth(lineWidth);
     }
     private void canvasClear(Canvas canvas){
-        GraphicsContext gc = canvas.getGraphicsContext2D();
-        if(gc==null){
-            return;
-        }
-        gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+
+       //GraphicsContext gc = canvas.getGraphicsContext2D();
+       //gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+
     }
 }

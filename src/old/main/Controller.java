@@ -227,7 +227,7 @@ public class Controller implements Initializable {
     public void showSceneMeasurment(){
         try{
             if(!stageMeasurment.isShowing()) {
-                URL fxmlURL = this.getClass().getClassLoader().getResource("\\measurmentSensor\\sceneMeasurment.fxml");
+                URL fxmlURL = this.getClass().getClassLoader().getResource("\\measurmentSensor\\DistanceMeasureScene.fxml");
                 Parent root = FXMLLoader.load(fxmlURL);
                 Scene scene = new Scene(root);
                 root.getStylesheets().add("style.css");
@@ -237,7 +237,7 @@ public class Controller implements Initializable {
             }
         }catch(Exception ex){
             ex.printStackTrace();
-            typicalFunction.showError("Nie udało się znaleśc pliku sceneMeasurment.fxml. \r\n Bład: "+ex.getMessage());
+            typicalFunction.showError("Nie udało się znaleśc pliku DistanceMeasureScene.fxml. \r\n Bład: "+ex.getMessage());
         }
     }
     @FXML

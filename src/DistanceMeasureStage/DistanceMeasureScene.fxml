@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Text?>
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="800.0" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="old.measurmentSensor.ControllerSceneMeasurment">
+   <center>
+      <VBox prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
+         <children>
+            <TableView fx:id="tvMeasurments" prefHeight="542.0" prefWidth="700.0" />
+         </children>
+         <padding>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+         </padding></VBox>
+   </center>
+   <top>
+      <HBox prefHeight="57.0" prefWidth="600.0" BorderPane.alignment="CENTER">
+         <children>
+            <VBox alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0">
+               <children>
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Poprawna odległośc (mm)" />
+                  <TextField fx:id="tfDistance" alignment="CENTER" style="-fx-text-box-border: transparent; -fx-background-color: #65605f; -fx-text-fill: white;" />
+               </children>
+               <HBox.margin>
+                  <Insets />
+               </HBox.margin>
+               <padding>
+                  <Insets left="5.0" right="5.0" top="5.0" />
+               </padding>
+            </VBox>
+            <VBox alignment="CENTER" prefHeight="58.0" prefWidth="199.0">
+               <padding>
+                  <Insets left="5.0" right="5.0" top="5.0" />
+               </padding>
+               <children>
+                  <Button fx:id="btSendStartMeasurment" mnemonicParsing="false" onAction="#sendStartMeasurment" prefWidth="180.0" style="-fx-background-color: blue; -fx-text-fill: white;" text="Wykonaj pomiary">
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor>
+                     <effect>
+                        <DropShadow />
+                     </effect></Button>
+               </children>
+            </VBox>
+            <VBox alignment="CENTER" prefHeight="58.0" prefWidth="251.0">
+               <padding>
+                  <Insets left="5.0" right="5.0" top="5.0" />
+               </padding>
+               <children>
+                  <Button fx:id="btSaveMeasurmentToFile" mnemonicParsing="false" onAction="#saveMeasurmentToFile" prefWidth="240.0" style="-fx-background-color: blue; -fx-text-fill: white;" text="Zapisz pomiary do pliku">
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor>
+                     <effect>
+                        <DropShadow />
+                     </effect></Button>
+               </children>
+            </VBox>
+            <VBox alignment="CENTER" prefHeight="58.0" prefWidth="146.0">
+               <padding>
+                  <Insets left="5.0" right="5.0" top="5.0" />
+               </padding>
+               <children>
+                  <Button fx:id="btClearMeasurment" mnemonicParsing="false" onAction="#clearMeasurments" style="-fx-background-color: red; -fx-text-fill: white;" text="Usuń pomiary">
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor>
+                     <effect>
+                        <DropShadow />
+                     </effect></Button>
+               </children>
+            </VBox>
+         </children>
+      </HBox>
+   </top>
+</BorderPane>

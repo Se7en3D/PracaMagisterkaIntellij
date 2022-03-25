@@ -82,4 +82,13 @@ public class Bluetooth {
         }
         return null;
     }
+    synchronized public void sendRideFunction(byte Byte ) throws Exception {
+        if (outputStream == null){
+            return;
+        }
+        outputStream.write(0xFF);
+        outputStream.write(Byte);
+        outputStream.write(0xFE);
+        outputStream.write(0xFE);
+    }
 }

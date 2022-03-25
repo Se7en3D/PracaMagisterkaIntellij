@@ -3,12 +3,14 @@ package ErrorStage;
 import CommunicationPackage.ClassInfo;
 import CommunicationPackage.Communication;
 import javafx.application.Platform;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.MouseEvent;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import old.errorDevice.TableViewError;
@@ -35,29 +37,44 @@ public class ErrorStageController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        BTClear.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                clearFrame();
+            }
+        });
+        BTSaveInFile.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                saveInFile();
+            }
+        });
     }
 
     @FXML
     public void saveInFile(){
-        /*DirectoryChooser directoryChooser = new DirectoryChooser();
+        DirectoryChooser directoryChooser = new DirectoryChooser();
         //directoryChooser.setInitialDirectory(new File("src"));
         try {
             File file=directoryChooser.showDialog(new Stage());
-            FileWriter myWriter = new FileWriter(file.getAbsolutePath()+"\\pomiary.txt");
-            ArrayList<TableViewErrorClass> arrayTemp= tableViewError.getErrorList();
-            for(TableViewErrorClass i:arrayTemp){
+            FileWriter myWriter = new FileWriter(file.getAbsolutePath()+"\\informacje.txt");
+            ArrayList<ClassInfo> arrayTemp= communication.getClassInfoArrayList();
+            for(ClassInfo i:arrayTemp){
                 myWriter.write(i.toString());
             }
             myWriter.close();
         }catch (Exception ex){
-            typicalfunction.showError("Bład podczas wybierania folderów. Error "+ex.getMessage());
+            //typicalfunction.showError("Bład podczas wybierania folderów. Error "+ex.getMessage());
             ex.printStackTrace();
-        }*/
+        }
     }
 
     @FXML
     public void clearFrame(){
-        //tableViewError.clearData();
+        tableView.getItems().clear();
+        if(communication!=null){
+            communication.clearClassInfoDecoder();
+        }
     }
     public void showTableView(Communication communication){
         this.communication=communication;

@@ -1,4 +1,5 @@
 import CommunicationPackage.Communication;
+import DistanceMeasureStage.DistanceMeasureController;
 import ErrorStage.ErrorStageController;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
@@ -27,10 +28,12 @@ public class MainController implements Initializable {
     private Bluetooth bluetooth=new Bluetooth();
     private static Communication communication=new Communication();
     private Stage errorStage=new Stage();
+    private Stage measureStage=new Stage();
     private Thread threadControlJoyStick;
     private Thread threadRefreshContents;
     private Thread threadRecivedData;
     private Boolean mousePressedOnCVController=false;
+    private Boolean resetCVcarWithSensors=true;
     @FXML
     Button BTSearchDevice;
     @FXML
@@ -66,7 +69,11 @@ public class MainController implements Initializable {
         BTConnectToDevice.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                mouseClickEventConnectToDevice();
+                try {
+                    mouseClickEventConnectToDevice();
+                }catch (Exception ex){
+                    ex.printStackTrace();
+                }
             }
         });
         setStyleNoConnect();
@@ -91,6 +98,12 @@ public class MainController implements Initializable {
                 showErrorStage();
             }
         });
+        BTMeasurment.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                showMeasureStage();
+            }
+        });
         threadRecivedData=new Thread(new Runnable() {
             @Override
             public void run() {
@@ -100,7 +113,7 @@ public class MainController implements Initializable {
         threadRecivedData.start();
     }
 
-    private void mouseClickEventConnectToDevice(){
+    private void mouseClickEventConnectToDevice() throws Exception{
         String LBString=LBConnectionStatus.getText();
         switch(LBString){
             case "Niepołączony":
@@ -110,7 +123,7 @@ public class MainController implements Initializable {
                     return;
                 }
                 try {
-                   // bluetooth.connectToDevice(selectedBluetooth);
+                   bluetooth.connectToDevice(selectedBluetooth);
                 }catch (Exception ex){
                     ex.printStackTrace();
                     System.out.println("Nie można się połączyć z urządzeniem");
@@ -153,7 +166,7 @@ public class MainController implements Initializable {
                 try {
                     threadControlJoyStick.stop();
                     threadRefreshContents.stop();
-                    //bluetooth.closeConnection();
+                    bluetooth.closeConnection();
                 }catch (Exception ex){
                     System.out.println("Nie można zamknąć połaczenia z urządzeniem bluetooth");
                 }
@@ -179,9 +192,18 @@ public class MainController implements Initializable {
         while(true) {
             try {
                 if(mousePressedOnCVController) {
-                    communication.calcSendFunctionFromCanvasController(CVController);
+                    int function=communication.calcSendFunctionFromCanvasController(CVController);
+                    if(function!=0){
+                        if(communication.isReadyToSendControlCommand()) {
+                            resetCVcarWithSensors=true;
+                            bluetooth.sendRideFunction((byte) function);
+                        }
+                    }
                 }else{
-                    communication.resetCanvasController(CVController);
+                    if(resetCVcarWithSensors) {
+                        resetCVcarWithSensors=false;
+                        communication.resetCanvasController(CVController);
+                    }
                 }
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -198,12 +220,13 @@ public class MainController implements Initializable {
             try{
                 communication.refreshBatteryCanvas(CVBattery);
                 communication.canvasCarWithSensor(CVcarWithSensors);
-                communication.addErrorTestValue();
+                communication.timeRefresh();
+                //communication.addErrorTestValue();
             }catch (Exception ex){
 
             }
             try{
-                Thread.sleep(1000);
+                Thread.sleep(100);
             }catch (Exception ex){
 
             }
@@ -235,7 +258,7 @@ public class MainController implements Initializable {
         canvasClear(CVcarWithSensors);
     }
 
-    private void setStyleConnect(){
+    private void setStyleConnect() throws Exception{
         LBConnectionStatus.setText("Połączony");
         BTConnectToDevice.setText("Rozłącz");
         BTConnectToDevice.setStyle("-fx-background-color: #d93204;-fx-text-fill:white");
@@ -244,9 +267,14 @@ public class MainController implements Initializable {
         communication.resetCanvasController(CVController);
     }
 
-    private void canvasClear(Canvas canvas){
-        GraphicsContext gc = canvas.getGraphicsContext2D();
-        gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+    synchronized private void canvasClear(Canvas canvas){
+        /*if(canvas!=null) {
+            GraphicsContext gc = canvas.getGraphicsContext2D();
+            gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+        }else{
+            System.out.println("CanvasClear Error");
+        }*/
+
     }
     private void showErrorStage(){
         try{
@@ -273,6 +301,53 @@ public class MainController implements Initializable {
                 }
             }
         }catch(Exception ex){
+            ex.printStackTrace();
+        }
+    }
+    private void showMeasureStage(){
+        try{
+            if(!measureStage.isShowing()) {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("\\DistanceMeasureStage\\DistanceMeasureScene.fxml"));
+                if(loader==null){
+                    System.out.println("loader measureStage jest równy null");
+                }
+                //URL fxmlURL = this.getClass().getClassLoader().getResource("\\ErrorStage\\ErrorStageScene.fxml");
+                Parent root = loader.load();
+                if(root!=null) {
+                    Scene scene = new Scene(root);
+                    /*DistanceMeasureController controller = loader.<DistanceMeasureController>getController();
+                    controller.showTableView(communication);
+                    //root.getStylesheets().add("../style.css");
+                    measureStage.setScene(scene);
+                    measureStage.setOnHidden(e -> {
+                        controller.close();
+                    });*/
+                    measureStage.setTitle("Praca magisterska panel badania czujników");
+                    measureStage.show();
+                }else{
+                    System.out.println("root measureStage jest równy null");
+                }
+            }
+        }catch(Exception ex){
+            ex.printStackTrace();
+        }
+    }
+    public void close(){
+        if(threadControlJoyStick!=null && threadControlJoyStick.isAlive()){
+            threadControlJoyStick.stop();
+        }
+        if(threadRefreshContents!=null && threadRefreshContents.isAlive()){
+            threadRefreshContents.stop();
+        }
+        if(threadRecivedData !=null && threadRecivedData.isAlive()){
+            threadRecivedData.stop();
+        }
+        if(errorStage!=null && errorStage.isShowing()){
+            errorStage.close();
+        }
+        try {
+            bluetooth.closeConnection();
+        }catch (Exception ex){
             ex.printStackTrace();
         }
     }
