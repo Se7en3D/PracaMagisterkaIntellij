@@ -19,5 +19,8 @@ public class FunctionID {
     public static final int MEASURE_DISTANCE_FUN=0xF0;
     public static final int MEASURE_DISTANCE_FUN_RECEIVED=0xF1;
     public static final int NO_DEFINED_FUN=0xFA;
+    public static final int SEND_DRIVE_STATUS=0x83;
+
+
 
 }

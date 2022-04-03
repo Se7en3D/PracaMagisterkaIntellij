@@ -59,7 +59,7 @@ public class CanvasCar {
         }
     }
 
-    public void drawCar(Canvas canvas, double x, double y, double w, double h, boolean[] sensorStatus, MeasuringSample[] distanceMeasuring){
+    public void drawCar(GraphicsContext context, double x, double y, double w, double h, boolean[] sensorStatus, MeasuringSample[] distanceMeasuring) throws Exception{
         double centerx=x;
         double centery=y-this.offsetYcarPosition;
         double heightElement=h/5; // 1/8
@@ -70,8 +70,6 @@ public class CanvasCar {
         double firstLiney=topArcy+h/4;
         double seconfLinex=x+w/2;
         double addWidthOval=10;
-        canvasClear(canvas);
-        GraphicsContext context = canvas.getGraphicsContext2D();
         Paint strokePreview=context.getStroke();
         double lineWidthPreview=context.getLineWidth();
         context.setLineWidth(4.0);
@@ -109,13 +107,13 @@ public class CanvasCar {
         context.fillRoundRect(firstLinex-w/4/2, (firstLiney+heightElement-addWidthOval/2)+5, w/4, h/5, w/10, h/10);
 
 
-        if(sensorStatus[IrSensor.IR_NR8_NUMBER]){
+        if(sensorStatus[IrSensor.IR_NR7_NUMBER]){
             context.setStroke(Color.RED);
         }
         context.strokeArc(firstLinex, firstLiney+heightElement*5-h/4, w, h/2, 0, -60, ArcType.OPEN);
         context.setStroke(strokePreview);
 
-        if(sensorStatus[IrSensor.IR_NR7_NUMBER]){
+        if(sensorStatus[IrSensor.IR_NR8_NUMBER]){
             context.setStroke(Color.RED);
         }
         context.strokeArc(firstLinex, firstLiney+heightElement*5-h/4, w, h/2, -60, -60, ArcType.OPEN);
@@ -145,11 +143,10 @@ public class CanvasCar {
 
         context.setLineWidth(lineWidthPreview);
 
-        drawCarMeasurments(canvas,distanceMeasuring);
+        drawCarMeasurments(context,distanceMeasuring);
     }
 
-    public void drawCarMeasurments(Canvas canvas, MeasuringSample[] distanceMeasuring){
-        GraphicsContext context = canvas.getGraphicsContext2D();
+    public void drawCarMeasurments(GraphicsContext context, MeasuringSample[] distanceMeasuring){
         Paint strokePreview=context.getStroke();
         boolean strokeReset=false;
         int distanceMeasuringLength=distanceMeasuring.length;
@@ -174,8 +171,5 @@ public class CanvasCar {
     }
 
 
-    private void canvasClear(Canvas canvas){
-        GraphicsContext gc = canvas.getGraphicsContext2D();
-        gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
-    }
+
 }

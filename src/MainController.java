@@ -20,9 +20,11 @@ import BluetoothPackage.Bluetooth;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 
+import javax.xml.soap.Text;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
+import java.util.concurrent.SynchronousQueue;
 
 public class MainController implements Initializable {
     private Bluetooth bluetooth=new Bluetooth();
@@ -56,6 +58,12 @@ public class MainController implements Initializable {
     Canvas CVcarWithSensors;
     @FXML
     Canvas CVBattery;
+    @FXML
+    Label LBTextController;
+    @FXML
+    Label LBDriveStatusDescription;
+    @FXML
+    Label LBDriveStatus;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -111,6 +119,7 @@ public class MainController implements Initializable {
             }
         });
         threadRecivedData.start();
+        IVbellImage.setVisible(false);
     }
 
     private void mouseClickEventConnectToDevice() throws Exception{
@@ -179,7 +188,7 @@ public class MainController implements Initializable {
 
 
     private void refreshBluetoothDevice(){
-        this.CBBluetoothDevices.getItems().removeAll();
+        this.CBBluetoothDevices.getItems().clear();
         try {
             ArrayList<String> stringComboBoxBluetoothFrendlyName=bluetooth.getFrendlyName();
             CBBluetoothDevices.getItems().addAll(stringComboBoxBluetoothFrendlyName);
@@ -192,17 +201,32 @@ public class MainController implements Initializable {
         while(true) {
             try {
                 if(mousePressedOnCVController) {
-                    int function=communication.calcSendFunctionFromCanvasController(CVController);
-                    if(function!=0){
-                        if(communication.isReadyToSendControlCommand()) {
-                            resetCVcarWithSensors=true;
-                            bluetooth.sendRideFunction((byte) function);
+                    Platform.runLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                            canvasClear(CVController);
+                            int function=communication.calcSendFunctionFromCanvasController(CVController,CVController.getHeight(),CVController.getWidth());
+                            if(function!=0){
+                                if(communication.isReadyToSendControlCommand()) {
+                                    resetCVcarWithSensors=true;
+                                    bluetooth.sendRideFunction((byte) function);
+                                }
+                            }}catch(Exception ex){
+                                ex.printStackTrace();
+                            }
                         }
-                    }
+                    });
                 }else{
                     if(resetCVcarWithSensors) {
-                        resetCVcarWithSensors=false;
-                        communication.resetCanvasController(CVController);
+                        Platform.runLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                resetCVcarWithSensors = false;
+                                canvasClear(CVController);
+                                communication.resetCanvasController(CVController.getGraphicsContext2D(), CVController.getHeight(), CVController.getWidth());
+                            }
+                        });
                     }
                 }
             } catch (Exception ex) {
@@ -218,9 +242,35 @@ public class MainController implements Initializable {
     private void refreshContent(){
         while(true){
             try{
-                communication.refreshBatteryCanvas(CVBattery);
-                communication.canvasCarWithSensor(CVcarWithSensors);
-                communication.timeRefresh();
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        canvasClear(CVBattery);
+                        canvasClear(CVcarWithSensors);
+                        communication.refreshBatteryCanvas(CVBattery.getGraphicsContext2D(),CVBattery.getHeight(),CVBattery.getWidth());
+                        communication.canvasCarWithSensor(CVcarWithSensors.getGraphicsContext2D(),CVcarWithSensors.getHeight(),CVcarWithSensors.getWidth());
+                        communication.timeRefresh();
+                        final int driveStatus=communication.getDriveStatus();
+                        switch(driveStatus){
+                            case 1:
+                                LBDriveStatus.setText("Oczekiwanie");
+                                LBDriveStatus.setStyle("-fx-text-fill:green;");
+                                break;
+                            case 2:
+                                LBDriveStatus.setText("Omijanie\nprzeszkody");
+                                LBDriveStatus.setStyle("-fx-text-fill:orange;");
+                                break;
+                            case 3:
+                                LBDriveStatus.setText("Wykryto\nprzeszkodę");
+                                LBDriveStatus.setStyle("-fx-text-fill:red;");
+                                break;
+                            default:
+                                LBDriveStatus.setText("Kod "+driveStatus);
+                                LBDriveStatus.setStyle("-fx-text-fill:black;");
+                                break;
+                        }
+                    }
+                });
                 //communication.addErrorTestValue();
             }catch (Exception ex){
 
@@ -253,6 +303,9 @@ public class MainController implements Initializable {
         BTConnectToDevice.setText("Połącz");
         BTConnectToDevice.setStyle("-fx-background-color: #03fc8c;");
         VBControlCar.setDisable(true);
+        LBTextController.setVisible(false);
+        LBDriveStatus.setVisible(false);
+        LBDriveStatusDescription.setVisible(false);
         canvasClear(CVBattery);
         canvasClear(CVController);
         canvasClear(CVcarWithSensors);
@@ -263,17 +316,22 @@ public class MainController implements Initializable {
         BTConnectToDevice.setText("Rozłącz");
         BTConnectToDevice.setStyle("-fx-background-color: #d93204;-fx-text-fill:white");
         VBControlCar.setDisable(false);
-        communication.refreshBatteryCanvas(CVBattery);
-        communication.resetCanvasController(CVController);
+        LBTextController.setVisible(true);
+        LBDriveStatus.setVisible(true);
+        LBDriveStatusDescription.setVisible(true);
+        canvasClear(CVBattery);
+        canvasClear(CVController);
+        communication.refreshBatteryCanvas(CVBattery.getGraphicsContext2D(),CVBattery.getHeight(),CVBattery.getWidth());
+        communication.resetCanvasController(CVController.getGraphicsContext2D(),CVController.getHeight(),CVController.getWidth());
     }
 
     synchronized private void canvasClear(Canvas canvas){
-        /*if(canvas!=null) {
+        if(canvas!=null) {
             GraphicsContext gc = canvas.getGraphicsContext2D();
             gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
         }else{
             System.out.println("CanvasClear Error");
-        }*/
+        }
 
     }
     private void showErrorStage(){

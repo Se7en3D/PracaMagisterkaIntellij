@@ -5,6 +5,7 @@ import CanvasPackage.CanvasCar;
 import CanvasPackage.CanvasCarController;
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import old.carRc.FrameInput;
 
 import java.awt.*;
@@ -20,6 +21,7 @@ public class Communication {
     private CanvasCar canvasCar=new CanvasCar();
     private ArrayList<Integer> arrayByteInput=new ArrayList<>();
     private ArrayList<ClassInfo> classInfoArrayList=new ArrayList<>();
+    private int driveStatus=1;
     private int timeToSendControlCommand;
     private static final int communiactionFirstByte=0xFF;
 
@@ -29,6 +31,9 @@ public class Communication {
     public void addFrameInput(int data){
         int bufferSize=arrayByteInput.size();
         if(bufferSize>0){
+            if(bufferSize==1 && (data==0xFF || data==0x00)){
+                arrayByteInput.clear();
+            }
             arrayByteInput.add(data);
             if(bufferSize>2){
                 //int lastByte=arrayByteInput.get(bufferSize)<<8+arrayByteInput.get(bufferSize-1);
@@ -45,7 +50,8 @@ public class Communication {
                 arrayByteInput.add(data);
             }else{
                 if(data!=0) {
-                    System.out.print(data);
+                    char sign=(char) data;
+                    System.out.print(sign);
                 }
             }
         }
@@ -84,17 +90,25 @@ public class Communication {
             case FunctionID.MEASURE_DISTANCE_FUN_RECEIVED:
                 System.out.println("Rozpoznano funkcje MEASURE_DISTANCE_FUN_RECEIVED");
                 break;
+            case FunctionID.SEND_DRIVE_STATUS:
+                driveStatus=arrayByteInput.get(2);
+                //System.out.println("Status jazdy "+arrayByteInput.get(2));
+                break;
             default:
-                System.out.println("Brak funkcji obsługującej "+String.format("%X",funId));
+                System.out.print("Brak funkcji obsługującej ramkę");
+                for(int i: arrayByteInput){
+                    System.out.print(String.format(" %X ",i));
+                }
+                System.out.println();
                 break;
 
         }
     }
-    synchronized public void refreshBatteryCanvas(Canvas canvas){
+    synchronized public void refreshBatteryCanvas(GraphicsContext context,Double height,Double width){
         double percentBattery=battery.getPercentVoltage();
-        canvasBattery.drawBattery(canvas,percentBattery);
+        canvasBattery.drawBattery(context,percentBattery,height,width);
     }
-    public int calcSendFunctionFromCanvasController(Canvas canvas) throws Exception{
+    public int calcSendFunctionFromCanvasController(Canvas canvas,Double height,Double width) throws Exception{
         Point pointMouse = MouseInfo.getPointerInfo().getLocation();
         Point2D pointNote = canvas.localToScreen(0, 0);
         double positionXMouseTowardNote = pointMouse.x - pointNote.getX();
@@ -104,12 +118,12 @@ public class Communication {
         if(((positionXMouseTowardNote>=0)&& (positionXMouseTowardNote<=widthNode))&&
                 ((positionYMouseTowardNote>=0)&&(positionYMouseTowardNote<=heightNode))){
             //System.out.println("Pozycja myszy względem Canvasa x="+positionXMouseTowardNote+ " y="+positionYMouseTowardNote);
-            canvasCarController.drawControllerWithPosition(canvas,positionXMouseTowardNote-10,positionYMouseTowardNote-10);
+            canvasCarController.drawControllerWithPosition(canvas.getGraphicsContext2D(),height,width,positionXMouseTowardNote-10,positionYMouseTowardNote-10);
         }else{
             //canvasCarController.drawController(canvas);
         }
-        positionXMouseTowardNote=(positionXMouseTowardNote-canvas.getWidth()/2);
-        positionYMouseTowardNote=(positionYMouseTowardNote-canvas.getHeight()/2)*-1;
+        positionXMouseTowardNote=(positionXMouseTowardNote-width/2);
+        positionYMouseTowardNote=(positionYMouseTowardNote-height/2)*-1;
         double tangensAlfa=Math.toDegrees(Math.atan(positionYMouseTowardNote/positionXMouseTowardNote));
         if(positionXMouseTowardNote<0 && positionYMouseTowardNote>0 ){
             tangensAlfa+=180;
@@ -161,16 +175,18 @@ public class Communication {
             return FrameInput.RIDE_BACKWARD_FUN;
         }
     }
-    public void resetCanvasController(Canvas canvas) throws Exception{
-        canvasCarController.drawController(canvas);
+    public void resetCanvasController(GraphicsContext context,double centerHeight,double centerWidth){
+        canvasCarController.drawController(context,centerHeight,centerWidth);
     }
-    public void canvasCarWithSensor(Canvas canvas){
-        double height=canvas.getHeight();
-        double width=canvas.getWidth();
+    public void canvasCarWithSensor(GraphicsContext context, double height, double width){
         double centerx=width/2;
         double centery=height/2;
         MeasuringSample[] samples=distanceMeasuring.getMeasure();
-        canvasCar.drawCar(canvas,centerx,centery,100,150,irSensor.getSensorStatus(), samples);
+        try {
+            canvasCar.drawCar(context, centerx, centery, 100, 150, irSensor.getSensorStatus(), samples);
+        }catch (Exception ex){
+            ex.printStackTrace();
+        }
     }
     public ArrayList<ClassInfo> getClassInfoArrayList(){
         return this.classInfoArrayList;
@@ -196,6 +212,7 @@ public class Communication {
     public void clearClassInfoDecoder(){
         classInfoArrayList.clear();
     }
-
-
+    public int getDriveStatus(){
+        return this.driveStatus;
+    }
 }

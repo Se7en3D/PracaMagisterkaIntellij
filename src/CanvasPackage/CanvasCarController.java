@@ -5,21 +5,14 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
 public class CanvasCarController {
-    public void drawControllerWithPosition(Canvas canvas,double x,double y) throws Exception{
-        drawController(canvas);
-        GraphicsContext context = canvas.getGraphicsContext2D();
+    public void drawControllerWithPosition(GraphicsContext context,double centerHeight,double centerWidth,double x,double y) {
+        drawController(context,centerHeight,centerWidth);
         context.setFill(Color.RED);
         context.strokeOval(x, y, 20, 20);
         context.setFill(Color.BLACK);
 
     }
-    public void drawController(Canvas canvas) throws Exception{
-        //canvasClear(canvas);
-        try {
-            GraphicsContext context = canvas.getGraphicsContext2D();
-            context.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
-            double centerWidth = canvas.getWidth();
-            double centerHeight = canvas.getHeight();
+    public void drawController(GraphicsContext context,double centerHeight,double centerWidth) {
             //System.out.println("centerWidth="+centerWidth+" centerHeight="+centerHeight);
             context.setFill(Color.BLACK);
             context.strokeOval(2, 2, centerWidth - 4, centerHeight - 4);
@@ -65,13 +58,5 @@ public class CanvasCarController {
             context.strokeLine(x - 36, y - 6, x - 18, y - 6);
             context.strokeLine(x - 18, y - 6, x - 18, y - 18);
             context.strokeLine(x - 18, y - 18, x, y);
-        }catch (Exception ex){
-            ex.printStackTrace();
-        }
-    }
-
-    private synchronized void canvasClear(Canvas canvas){
-            //GraphicsContext gc = canvas.getGraphicsContext2D();
-            //gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
     }
 }

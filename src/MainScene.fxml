@@ -1,11 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.*?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.canvas.Canvas?>
-<?import javafx.scene.control.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.text.Text?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="850.0" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="MainController">
    <top>
       <VBox prefHeight="49.0" prefWidth="600.0" BorderPane.alignment="CENTER">
@@ -63,7 +68,10 @@
                      </HBox.margin>
                   </Button>
                   <Button fx:id="BTShowError" mnemonicParsing="false" prefWidth="120.0" text="Informacje" />
-                  <ImageView fx:id="IVbellImage" fitHeight="39.0" fitWidth="39.0" pickOnBounds="true" preserveRatio="true" />
+                  <ImageView fx:id="IVbellImage" fitHeight="39.0" fitWidth="39.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@old/image/bell.png" />
+                     </image></ImageView>
                </children>
             </HBox>
             <HBox alignment="CENTER_RIGHT" prefHeight="709.0" prefWidth="800.0">
@@ -71,11 +79,13 @@
                   <Canvas fx:id="CVcarWithSensors" height="701.0" width="601.0" />
                   <VBox alignment="CENTER" prefHeight="200.0" prefWidth="200.0">
                      <children>
-                        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Kontroler kierunku jazdy">
+                        <Label fx:id="LBDriveStatusDescription" text="Stan kierunku jazdy" />
+                        <Label fx:id="LBDriveStatus" text="Ręczny">
                            <VBox.margin>
-                              <Insets bottom="10.0" />
+                              <Insets bottom="50.0" />
                            </VBox.margin>
-                        </Text>
+                        </Label>
+                        <Label fx:id="LBTextController" alignment="CENTER" minWidth="120.0" prefWidth="120.0" style="-fx-min-width: 73;" text="Kontroler kierunku jazdy" textAlignment="CENTER" wrapText="true" />
                         <Canvas fx:id="CVController" height="160.0" width="160.0" />
                      </children>
                   </VBox>

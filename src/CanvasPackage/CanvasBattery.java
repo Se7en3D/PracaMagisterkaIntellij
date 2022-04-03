@@ -8,12 +8,7 @@ import javafx.scene.paint.Paint;
 public class CanvasBattery {
 
 
-    public void drawBattery(Canvas canvas,double batteryPercent){
-        canvasClear(canvas);
-        GraphicsContext context = canvas.getGraphicsContext2D();
-        context.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
-        Double width=canvas.getWidth();
-        Double height=canvas.getHeight();
+    public void drawBattery(GraphicsContext context,double batteryPercent,Double height,Double width){
         String text = "NaN%";
         Double percent=batteryPercent;
         if(percent>100.0){
@@ -43,10 +38,5 @@ public class CanvasBattery {
         context.setFill(strokeFill);
         context.setLineWidth(lineWidth);
     }
-    private void canvasClear(Canvas canvas){
 
-       //GraphicsContext gc = canvas.getGraphicsContext2D();
-       //gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
-
-    }
 }
