@@ -57,12 +57,12 @@
                         <Insets right="10.0" />
                      </HBox.margin>
                   </Button>
-                  <Button mnemonicParsing="false" text="Kalibracja">
+                  <Button mnemonicParsing="false" text="Kalibracja" visible="false">
                      <HBox.margin>
                         <Insets right="10.0" />
                      </HBox.margin>
                   </Button>
-                  <Button mnemonicParsing="false" text="Status uC">
+                  <Button mnemonicParsing="false" text="Status uC" visible="false">
                      <HBox.margin>
                         <Insets right="10.0" />
                      </HBox.margin>
