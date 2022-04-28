@@ -21,6 +21,7 @@ public class Communication {
     private CanvasCar canvasCar=new CanvasCar();
     private ArrayList<Integer> arrayByteInput=new ArrayList<>();
     private ArrayList<ClassInfo> classInfoArrayList=new ArrayList<>();
+    private ArrayList<DistanceMeasuringWithoutPosition> distanceMeasuringWithoutPositions=new ArrayList<>();
     private int driveStatus=1;
     private int timeToSendControlCommand;
     private static final int communiactionFirstByte=0xFF;
@@ -89,6 +90,7 @@ public class Communication {
                 break;
             case FunctionID.MEASURE_DISTANCE_FUN_RECEIVED:
                 System.out.println("Rozpoznano funkcje MEASURE_DISTANCE_FUN_RECEIVED");
+                distanceMeasuringWithoutPositions.add(new DistanceMeasuringWithoutPosition(arrayByteInput));
                 break;
             case FunctionID.SEND_DRIVE_STATUS:
                 driveStatus=arrayByteInput.get(2);
@@ -214,5 +216,9 @@ public class Communication {
     }
     public int getDriveStatus(){
         return this.driveStatus;
+    }
+
+    public ArrayList<DistanceMeasuringWithoutPosition> getDistanceMeasuringWithoutPositions() {
+        return distanceMeasuringWithoutPositions;
     }
 }

@@ -1,4 +1,5 @@
 import CommunicationPackage.Communication;
+import DistanceMeasureStage.CommunicationBetweenStages;
 import DistanceMeasureStage.DistanceMeasureController;
 import ErrorStage.ErrorStageController;
 import javafx.application.Platform;
@@ -36,6 +37,7 @@ public class MainController implements Initializable {
     private Thread threadRecivedData;
     private Boolean mousePressedOnCVController=false;
     private Boolean resetCVcarWithSensors=true;
+    private CommunicationBetweenStages communicationBetweenStages=new CommunicationBetweenStages();
     @FXML
     Button BTSearchDevice;
     @FXML
@@ -269,6 +271,15 @@ public class MainController implements Initializable {
                                 LBDriveStatus.setStyle("-fx-text-fill:black;");
                                 break;
                         }
+                        Boolean isDataToSend=communicationBetweenStages.getSendMeasureDistanceFromDistanceMeasureStage();
+                        if(isDataToSend){
+                            communicationBetweenStages.setSendMeasureDistanceFromDistanceMeasureStage(false);
+                            try {
+                                bluetooth.sendOnlyFunction((byte) 0xF0);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
                     }
                 });
                 //communication.addErrorTestValue();
@@ -369,17 +380,17 @@ public class MainController implements Initializable {
                 if(loader==null){
                     System.out.println("loader measureStage jest równy null");
                 }
-                //URL fxmlURL = this.getClass().getClassLoader().getResource("\\ErrorStage\\ErrorStageScene.fxml");
+                URL fxmlURL = this.getClass().getClassLoader().getResource("\\DistanceMeasureStage\\DistanceMeasureScene.fxml");
                 Parent root = loader.load();
                 if(root!=null) {
                     Scene scene = new Scene(root);
-                    /*DistanceMeasureController controller = loader.<DistanceMeasureController>getController();
-                    controller.showTableView(communication);
+                    DistanceMeasureController controller = loader.<DistanceMeasureController>getController();
+                    controller.showTableView(communication,communicationBetweenStages);
                     //root.getStylesheets().add("../style.css");
                     measureStage.setScene(scene);
                     measureStage.setOnHidden(e -> {
                         controller.close();
-                    });*/
+                    });
                     measureStage.setTitle("Praca magisterska panel badania czujników");
                     measureStage.show();
                 }else{

@@ -1,12 +1,16 @@
 package DistanceMeasureStage;
 
 import CommunicationPackage.Communication;
+import CommunicationPackage.DistanceMeasuringWithoutPosition;
+import javafx.application.Platform;
 import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 
@@ -17,7 +21,11 @@ import java.util.ArrayList;
 import java.util.ResourceBundle;
 import java.util.function.UnaryOperator;
 
+
 public class DistanceMeasureController implements Initializable {
+    private Communication communication;
+    private CommunicationBetweenStages communicationBetweenStages=new CommunicationBetweenStages();
+    private Thread refreshContent;
     //private Bluetooth bluetooth=new Bluetooth();
    // private typicalFunction typicalfunction=new typicalFunction();
     @FXML
@@ -29,7 +37,7 @@ public class DistanceMeasureController implements Initializable {
     @FXML
     TextField tfDistance;
     @FXML
-    //TableView tvMeasurments;
+    TableView tvMeasurments;
     //private measurmentTableView measurmenttableview;
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -46,46 +54,64 @@ public class DistanceMeasureController implements Initializable {
         measurmenttableview.showTable();*/
     }
 
-    /*public void sendStartMeasurment(){
-        try {
-            if(!tfDistance.getText().equals("")) {
-                measurmenttableview.setReferenceMeasurment(Integer.parseInt(tfDistance.getText()));
-            }else{
-                measurmenttableview.setReferenceMeasurment(0);
-            }
-            bluetooth.sendData((byte) 0xF0);
-        }catch (Exception ex){
-            typicalfunction.showError("Nie można wysłąc polecenia. Błąd: "+ex.getMessage());
-            ex.printStackTrace();
-            typicalfunction.showError("Błąd połączenie z urządzeniem bluetooth \n należy włączyć je ponownie");
-        }
+    public void sendStartMeasurment(){
+        communicationBetweenStages.setSendMeasureDistanceFromDistanceMeasureStage(true);
     }
-
     public void clearMeasurments(){
-        measurmenttableview.clearData();
+
+    }
+    public void saveMeasurmentToFile(){
+
     }
 
-    public void saveMeasurmentToFile(){
-        DirectoryChooser directoryChooser = new DirectoryChooser();
-        //directoryChooser.setInitialDirectory(new File("src"));
-        try {
-            File file=directoryChooser.showDialog(new Stage());
-            FileWriter myWriter = new FileWriter(file.getAbsolutePath()+"\\pomiary.txt");
-            ArrayList<measurmentTableViewMeasurClass> arrayTemp= measurmentTableView.getMeasurList();
-            for(measurmentTableViewMeasurClass i:arrayTemp){
-                myWriter.write(i.toString());
-            }
-            myWriter.close();
-        }catch (Exception ex){
-            typicalfunction.showError("Bład podczas wybierania folderów. Error "+ex.getMessage());
-            ex.printStackTrace();
+    public void showTableView( Communication communication,CommunicationBetweenStages communicationBetweenStages){
+        this.communication=communication;
+        this.communicationBetweenStages=communicationBetweenStages;
+        if(refreshContent==null){
+            refreshContent=new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    while(true){
+                        try{
+                            Platform.runLater(new Runnable() {
+                                @Override
+                                public void run() {
+                                    refreshTableView();
+                                }
+                            });
+                            Thread.sleep(2000);
+                        }catch (Exception ex){
+                            ex.printStackTrace();
+                        }
+                    }
+                }
+            });
+            refreshContent.start();
         }
-    }*/
+        TableColumn<DistanceMeasuringWithoutPosition,Integer> tcReferenceMeasurment=new TableColumn<>("Wartośc referencyjna");
+        tcReferenceMeasurment.setCellValueFactory(new PropertyValueFactory<>("referenceMeasurment"));
+        TableColumn<DistanceMeasuringWithoutPosition,Integer> tcUltrasonicSensor=new TableColumn<>("Czujnik ultradzwiękowy");
+        tcUltrasonicSensor.setCellValueFactory(new PropertyValueFactory<>("ultrasonicSensor"));
+        TableColumn<DistanceMeasuringWithoutPosition,Integer> tcLaserSensor=new TableColumn<>("Czujnik laserowy");
+        tcLaserSensor.setCellValueFactory(new PropertyValueFactory<>("laserSensor"));
 
-    public void showTableView( Communication communication){
+        tcReferenceMeasurment.setMinWidth(200);
+        tcUltrasonicSensor.setMinWidth(200);
+        tcLaserSensor.setMinWidth(200);
+
+        tvMeasurments.getColumns().addAll(tcReferenceMeasurment,tcUltrasonicSensor,tcLaserSensor);
+        refreshTableView();
+     }
+
+    public void refreshTableView(){
+        ArrayList<DistanceMeasuringWithoutPosition> distanceMeasuringWithoutPositions=communication.getDistanceMeasuringWithoutPositions();
+        tvMeasurments.getItems().clear();
+        tvMeasurments.getItems().addAll(distanceMeasuringWithoutPositions);
 
     }
     public void close(){
-
+        if(refreshContent.isAlive()){
+            refreshContent.stop();
+        }
     }
 }

@@ -21,8 +21,9 @@ public class measurmentTableViewMeasurClass {
         this.referenceMeasurment = referenceMeasurment;
         int tempInt=(frame.get(5)<<24) | (frame.get(4)<<16)|(frame.get(3)<<8)|(frame.get(2));
         this.ultrasonicSensor=Float.intBitsToFloat(tempInt);
+        this.ultrasonicSensor=(-0.0003)*this.ultrasonicSensor*this.ultrasonicSensor+1.07*this.ultrasonicSensor-6.327;
         this.laserSensor=(frame.get(7)<<8)|(frame.get(6));
-        this.laserSensor =(float ) 0.00011899*this.laserSensor*this.laserSensor+(float) 0.90281*this.laserSensor-(float)64.5932;
+        this.laserSensor =(float ) 0.000413*this.laserSensor*this.laserSensor*this.laserSensor+(float ) -0.0045*this.laserSensor*this.laserSensor+(float) 1.105*this.laserSensor-(float)5.333;
 
     }
 

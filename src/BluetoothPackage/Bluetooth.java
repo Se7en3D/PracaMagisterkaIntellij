@@ -91,4 +91,13 @@ public class Bluetooth {
         outputStream.write(0xFE);
         outputStream.write(0xFE);
     }
+    synchronized  public void sendOnlyFunction(byte Byte) throws Exception {
+        if (outputStream == null){
+            return;
+        }
+        outputStream.write(0xFF);
+        outputStream.write(Byte);
+        outputStream.write(0xFE);
+        outputStream.write(0xFE);
+    }
 }
