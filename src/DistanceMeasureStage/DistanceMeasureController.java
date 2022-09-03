@@ -1,5 +1,6 @@
 package DistanceMeasureStage;
 
+import CommunicationPackage.ClassInfo;
 import CommunicationPackage.Communication;
 import CommunicationPackage.DistanceMeasuringWithoutPosition;
 import javafx.application.Platform;
@@ -56,12 +57,38 @@ public class DistanceMeasureController implements Initializable {
 
     public void sendStartMeasurment(){
         communicationBetweenStages.setSendMeasureDistanceFromDistanceMeasureStage(true);
+        String distanceString=tfDistance.getText();
+        int distanceInt=0;
+        if(distanceString!=null){
+            try {
+                distanceInt = Integer.parseInt(distanceString);
+            }catch (Exception ex){
+                //ex.printStackTrace();
+                distanceInt=0;
+            }
+        }
+        communication.setReferenceMeasurment(distanceInt);
     }
     public void clearMeasurments(){
-
+        ArrayList<DistanceMeasuringWithoutPosition> distanceMeasuringWithoutPositions=communication.getDistanceMeasuringWithoutPositions();
+        distanceMeasuringWithoutPositions.clear();
+        tvMeasurments.getItems().clear();
     }
     public void saveMeasurmentToFile(){
-
+        DirectoryChooser directoryChooser = new DirectoryChooser();
+        //directoryChooser.setInitialDirectory(new File("src"));
+        try {
+            File file=directoryChooser.showDialog(new Stage());
+            FileWriter myWriter = new FileWriter(file.getAbsolutePath()+"\\pomiary.txt");
+            ArrayList<DistanceMeasuringWithoutPosition> arrayTemp= communication.getDistanceMeasuringWithoutPositions();
+            for(DistanceMeasuringWithoutPosition i:arrayTemp){
+                myWriter.write(i.toString());
+            }
+            myWriter.close();
+        }catch (Exception ex){
+            //typicalfunction.showError("Bład podczas wybierania folderów. Error "+ex.getMessage());
+            ex.printStackTrace();
+        }
     }
 
     public void showTableView( Communication communication,CommunicationBetweenStages communicationBetweenStages){
@@ -90,9 +117,9 @@ public class DistanceMeasureController implements Initializable {
         }
         TableColumn<DistanceMeasuringWithoutPosition,Integer> tcReferenceMeasurment=new TableColumn<>("Wartośc referencyjna");
         tcReferenceMeasurment.setCellValueFactory(new PropertyValueFactory<>("referenceMeasurment"));
-        TableColumn<DistanceMeasuringWithoutPosition,Integer> tcUltrasonicSensor=new TableColumn<>("Czujnik ultradzwiękowy");
+        TableColumn<DistanceMeasuringWithoutPosition,Double> tcUltrasonicSensor=new TableColumn<>("Czujnik ultradzwiękowy");
         tcUltrasonicSensor.setCellValueFactory(new PropertyValueFactory<>("ultrasonicSensor"));
-        TableColumn<DistanceMeasuringWithoutPosition,Integer> tcLaserSensor=new TableColumn<>("Czujnik laserowy");
+        TableColumn<DistanceMeasuringWithoutPosition,Double> tcLaserSensor=new TableColumn<>("Czujnik laserowy");
         tcLaserSensor.setCellValueFactory(new PropertyValueFactory<>("laserSensor"));
 
         tcReferenceMeasurment.setMinWidth(200);

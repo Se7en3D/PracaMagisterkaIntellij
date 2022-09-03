@@ -22,6 +22,7 @@ public class Communication {
     private ArrayList<Integer> arrayByteInput=new ArrayList<>();
     private ArrayList<ClassInfo> classInfoArrayList=new ArrayList<>();
     private ArrayList<DistanceMeasuringWithoutPosition> distanceMeasuringWithoutPositions=new ArrayList<>();
+    private int referenceMeasurment=0;
     private int driveStatus=1;
     private int timeToSendControlCommand;
     private static final int communiactionFirstByte=0xFF;
@@ -89,8 +90,8 @@ public class Communication {
                 battery.calcVoltage(arrayByteInput);
                 break;
             case FunctionID.MEASURE_DISTANCE_FUN_RECEIVED:
-                System.out.println("Rozpoznano funkcje MEASURE_DISTANCE_FUN_RECEIVED");
-                distanceMeasuringWithoutPositions.add(new DistanceMeasuringWithoutPosition(arrayByteInput));
+                //System.out.println("Rozpoznano funkcje MEASURE_DISTANCE_FUN_RECEIVED");
+                distanceMeasuringWithoutPositions.add(new DistanceMeasuringWithoutPosition(referenceMeasurment,arrayByteInput));
                 break;
             case FunctionID.SEND_DRIVE_STATUS:
                 driveStatus=arrayByteInput.get(2);
@@ -220,5 +221,9 @@ public class Communication {
 
     public ArrayList<DistanceMeasuringWithoutPosition> getDistanceMeasuringWithoutPositions() {
         return distanceMeasuringWithoutPositions;
+    }
+
+    public void setReferenceMeasurment(int referenceMeasurment) {
+        this.referenceMeasurment = referenceMeasurment;
     }
 }
